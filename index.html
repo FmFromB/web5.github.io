@@ -1,0 +1,213 @@
+<html>
+<head>
+	<title>Canvas & Mootools</title>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mootools/1.6.0/mootools-core.js"></script>
+	<script type="text/javascript">
+		var canvas, ctx, balls, squares, idTimer, idTimer2, idTimer3, idTimer4, idTimer5;
+		
+		TBall = new Class({
+			initialize: function(pX,pY) {
+				this.posX = pX;
+				this.posY = pY;
+				this.colBall = 'rgb('+Math.floor(Math.random()*256)+','
+				+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+')';
+				this.rBall = 5+Math.random()*25;
+			},
+			posX: 0,
+			posY: 0,
+			colBall:"rgb(0,0,0)",
+			rBall: 0,
+			colorBall: function(ctx){
+				with (this){
+					var gradient = ctx.createRadialGradient(posX+rBall/4,
+					posY-rBall/6, rBall/8, posX, posY, rBall);
+					gradient.addColorStop(0, '#fff');
+					gradient.addColorStop(0.85, colBall);
+					return gradient;
+				}
+			},
+			draw : function(ctx){
+				with (this){
+					ctx.fillStyle = colorBall(ctx);
+					ctx.beginPath();
+					ctx.arc(posX, posY, rBall, 0, 2*Math.PI, false);
+					ctx.closePath();
+					ctx.fill();
+				}
+			}
+		});
+		
+		TSquare = new Class({
+			initialize: function(pX,pY) {
+				this.posX = pX; 
+				this.posY = pY; 
+				this.colSqr = 'rgb('+Math.floor(Math.random()*256)+','
+				+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+')';
+			},
+			posX: 0,
+			posY: 0,
+			colSqr:"rgb(0,0,0)",
+
+			
+			
+			draw : function(ctx){
+				with (this){
+					ctx.fillRect(20,20,50,50);
+    				ctx.fill();
+				}
+			}
+		});
+
+		function drawBack(ctx,col1,col2,w,h){
+			ctx.save();
+			var g = ctx.createLinearGradient(0,0,0,h);
+			g.addColorStop(1,col1);
+			g.addColorStop(0,col2);
+			ctx.fillStyle = g;
+			ctx.fillRect(0,0,w,h);
+			ctx.restore();
+		}
+
+		function init(){
+			canvas = document.getElementById('canvas');
+			if (canvas.getContext){
+				ctx = canvas.getContext('2d');
+
+				drawBack(ctx,'#202020','#aaa',canvas.width,canvas.height);
+
+				balls = [];
+				for (var i = 1; i<=5;i++){
+					var item = new TBall(5+Math.random()*(canvas.width-30),
+					5+Math.random()*(canvas.height-30));
+					item.draw(ctx);
+					balls.push(item);
+				}
+				//создаем 5 квадратов, заноси их в массив и выводим на canvas
+				squares = [];
+				for (var i = 1; i<=5;i++){
+					var item2 = new Tsquare(5+Math.random()*(canvas.width-30),
+					5+Math.random()*(canvas.height-30));
+					item2.draw(ctx);
+					squares.push(item2);
+				}
+			}
+		}
+		// создаем новый шарик по щелчку мыши, добавляем его в массив шариков и рисуем его
+		function goInput(event){
+			num = Math.floor(Math.ramdom() * 100 % 3)
+			switch(num){
+				case 0:
+					var x = event.clientX;
+					var y = event.clientY;
+					var item = new TBall(x,y);
+					item.draw(ctx);
+					balls.push(item);
+				case 1:
+					var x = event.clientX;
+					var y = event.clientY;
+					var item = new TSquare(x,y);
+					item.draw(ctx);
+					squares.push(item);
+			}
+		}
+		
+		
+		function moveBallUp(){
+			//реализация движения шариков, находящихся в массиве balls
+			drawBack(ctx,'#202020','#aaa',canvas.width,canvas.height);
+			for (var i = 0; i < balls.length;i){
+				balls[i].posX = balls[i].posX + (Math.random()*4-2);
+				balls[i].posY = balls[i].posY + (Math.random()*2-4);
+				balls[i].draw(ctx);
+				if ((balls[i].posX > canvas.width)||(balls[i].posX < 0) ||(balls[i].posY < 0)) 
+					balls.splice(i,1);
+				else 
+					i++;
+			}
+		}
+		function moveBallDown(){
+			//реализация движения шариков, находящихся в массиве balls
+			drawBack(ctx,'#202020','#aaa',canvas.width,canvas.height);
+			for (var i = 0; i < balls.length;i){
+				balls[i].posX = balls[i].posX + (Math.random()*2-1);
+				balls[i].posY = balls[i].posY - (Math.random()*1-2);
+				balls[i].draw(ctx);
+				if ((balls[i].posX > canvas.width)||(balls[i].posX < 0) ||(balls[i].posY < 0)) 
+					balls.splice(i,1);
+				else 
+					i++;
+			}
+		}
+		function moveBallRight(){
+			//реализация движения шариков, находящихся в массиве balls
+			drawBack(ctx,'#202020','#aaa',canvas.width,canvas.height);
+			for (var i = 0; i < balls.length;i){
+				balls[i].posX = balls[i].posX + (Math.random()*2);
+				balls[i].draw(ctx);
+				if ((balls[i].posX > canvas.width)||(balls[i].posX < 0) ||(balls[i].posY < 0))
+					balls.splice(i,1);
+				else 
+					i++;
+			}
+		}
+		function moveBallleft(){
+			//реализация движения шариков, находящихся в массиве balls
+			drawBack(ctx,'#202020','#aaa',canvas.width,canvas.height);
+			for (var i = 0; i < balls.length;i){
+				balls[i].posX = balls[i].posX - (Math.random());
+				balls[i].draw(ctx);
+				if ((balls[i].posX > canvas.width)||(balls[i].posX < 0) ||(balls[i].posY < 0)) 
+					balls.splice(i,1);
+				else 
+					i++;
+			}
+		}
+
+		function moveBallRandom(){
+			//реализация движения шариков, находящихся в массиве balls
+			drawBack(ctx,'#202020','#aaa',canvas.width,canvas.height);
+			for (var i = 0; i < balls.length;i){
+				balls[i].posX = balls[i].posX + (Math.random()) + (Math.random());
+				balls[i].posY = balls[i].posY + (Math.random()) + (Math.random());
+				balls[i].draw(ctx);
+				if ((balls[i].posX > canvas.width)||(balls[i].posX < 0) ||(balls[i].posY < 0)) 
+					balls.splice(i,1);
+				else 
+					i++;
+			}
+		}	
+		
+		
+		function move(){
+			idTimer = setInterval('moveBallUp();',50);
+		}
+		function move1(){
+			idTimer2 = setInterval('moveBallDown();',50);
+		}
+		function move2(){
+			idTimer3 = setInterval('moveBallRight();',50);
+		}
+		function move3(){
+			idTimer4 = setInterval('moveBallleft();',50);
+		}
+		function move4(){
+			idTimer5 = setInterval('moveBallRandom();',50);
+		}
+	</script>
+	<style type="text/css">
+		canvas { border: 1px solid blue; }
+	</style>
+</head>
+<body onload="init();">
+	<canvas id="canvas" width="600" height="400" onclick="goInput(event);">
+	</canvas>
+	<form>
+		<input type = "button" value = "Вверх" onclick="move()">
+		<input type = "button" value = "Вниз" onclick="move1()">
+		<input type = "button" value = "Влево" onclick="move3()">
+		<input type = "button" value = "Вправо" onclick="move2()">
+		<input type = "button" value = "Рандомно" onclick="move4()">
+		<input type = "button" value = "Стоп" onclick="clearInterval(idTimer);">
+	</form>
+</body>
+</html>
